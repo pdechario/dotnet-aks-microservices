@@ -4,9 +4,9 @@ Minimal .NET 8 microservices product for an AKS, Helm, and OpenTelemetry infrast
 
 ## Services
 
-- Users.Api
-- Tasks.Api
-- Notifications.Api
+- Users
+- Tasks
+- Notifications
 
 Each service is an independent .NET 8 Minimal API running on port 8080 inside its container.
 

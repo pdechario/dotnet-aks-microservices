@@ -6,7 +6,7 @@ var tasks = new List<TaskOrder>
     new("t1", "Deploy Helm chart", "u1", "open")
 };
 
-app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "tasks-api" }));
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "tasks" }));
 
 app.MapGet("/tasks", () => Results.Ok(tasks));
 

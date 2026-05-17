@@ -6,7 +6,7 @@ var notifications = new List<Notification>
     new("n1", "u1", "Task assigned")
 };
 
-app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "notifications-api" }));
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "notifications" }));
 
 app.MapGet("/notifications", () => Results.Ok(notifications));
 

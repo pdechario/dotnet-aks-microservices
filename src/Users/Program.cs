@@ -6,7 +6,7 @@ var users = new List<User>
     new("u1", "Percie", "percie@example.com")
 };
 
-app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "users-api" }));
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "users" }));
 
 app.MapGet("/users", () => Results.Ok(users));
 
