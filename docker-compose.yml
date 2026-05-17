@@ -1,4 +1,15 @@
 services:
+  gateway:
+    build:
+      context: ./src/Gateway
+      dockerfile: Dockerfile.Gateway
+    ports:
+      - "5000:8080"
+    depends_on:
+      - users
+      - tasks
+      - notifications
+
   users:
     build:
       context: ./src/Users
