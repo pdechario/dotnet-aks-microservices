@@ -1,0 +1,21 @@
+services:
+  users-api:
+    build:
+      context: ./src/Users.Api
+      dockerfile: Dockerfile.Users
+    ports:
+      - "5001:8080"
+
+  tasks-api:
+    build:
+      context: ./src/Tasks.Api
+      dockerfile: Dockerfile.Tasks
+    ports:
+      - "5002:8080"
+
+  notifications-api:
+    build:
+      context: ./src/Notifications.Api
+      dockerfile: Dockerfile.Notifications
+    ports:
+      - "5003:8080"
