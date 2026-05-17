@@ -3,7 +3,7 @@ var app = builder.Build();
 
 var tasks = new List<TaskOrder>
 {
-    new("t1", "Deploy Helm chart", "u1", "open")
+    new("t1", "Deploy Helm chart", "Deploy the Helm chart to production", "u1", "open")
 };
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "tasks" }));
@@ -39,4 +39,4 @@ app.MapPut("/tasks/{id}/complete", (string id) =>
 
 app.Run();
 
-record TaskOrder(string Id, string Title, string AssignedUserId, string Status);
+record TaskOrder(string Id, string Title, string Details, string AssignedUserId, string Status);
