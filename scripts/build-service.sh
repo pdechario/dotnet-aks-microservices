@@ -12,7 +12,16 @@ get_layer() {
 }
 
 LAYER=$(get_layer "$SERVICE")
-PASCAL=$(echo "$SERVICE" | sed 's/\b./\U&/g')
+
+# Map service names to PascalCase project names
+case "$SERVICE" in
+    gateway)      PASCAL="Gateway" ;;
+    tasks)        PASCAL="Tasks" ;;
+    users)        PASCAL="Users" ;;
+    notifications) PASCAL="Notifications" ;;
+    taskscli)     PASCAL="TasksCli" ;;
+    *)            echo "❌ Unknown service '$SERVICE'"; exit 1 ;;
+esac
 
 if [ ! -d "$ROOT_DIR/$LAYER/$SERVICE" ]; then
     echo "❌ Service '$SERVICE' not found"
