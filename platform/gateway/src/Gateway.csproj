@@ -15,6 +15,13 @@
     <PackageReference Include="Serilog.AspNetCore" Version="8.1.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(GITHUB_ACTIONS)' != 'true'">
+    <ProjectReference Include="../../common/src/Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <PackageReference Include="DotnetAksMicroservices.Common" Version="1.0.0" />
   </ItemGroup>
 

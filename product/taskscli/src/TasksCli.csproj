@@ -11,7 +11,11 @@
     <Description>CLI tool for interacting with Tasks service</Description>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(GITHUB_ACTIONS)' != 'true'">
+    <ProjectReference Include="../../../platform/common/src/Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <PackageReference Include="DotnetAksMicroservices.Common" Version="1.0.0" />
   </ItemGroup>
 
