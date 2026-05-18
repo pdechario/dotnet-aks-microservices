@@ -7,8 +7,8 @@ set -e
 
 echo "🔨 Building Common package..."
 
-cd ./shared/src/Common
-dotnet pack -o ../../packages --configuration Release
+cd ./platform/common/src
+dotnet pack -o ../../../packages --configuration Release
 
 cd ../../../
 

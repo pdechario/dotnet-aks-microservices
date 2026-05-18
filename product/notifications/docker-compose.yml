@@ -1,0 +1,9 @@
+services:
+  notifications:
+    build:
+      context: ../../
+      dockerfile: product/notifications/Dockerfile.Notifications
+    ports:
+      - "5003:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
