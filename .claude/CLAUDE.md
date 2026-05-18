@@ -4,23 +4,70 @@
 
 ```
 .
-├── services/                          # All microservices
+├── product/                           # Business domain services
+│   ├── tasks/
+│   │   ├── src/                       # Source code (Tasks.csproj, Program.cs, etc.)
+│   │   ├── tests/                     # Tests
+│   │   ├── docker-compose.yml         # Service-specific compose
+│   │   └── Dockerfile.Tasks           # Service Dockerfile
+│   ├── users/
+│   ├── notifications/
+│   └── taskscli/                      # Product client CLI tool
+├── platform/                          # Shared infrastructure & edge
 │   ├── gateway/
-│   │   ├── src/Gateway/               # Source code
+│   │   ├── src/                       # Source code (Gateway.csproj, Program.cs, etc.)
 │   │   ├── tests/                     # Tests
 │   │   ├── docker-compose.yml         # Service-specific compose
 │   │   └── Dockerfile.Gateway         # Service Dockerfile
-│   ├── tasks/
-│   ├── users/
-│   ├── notifications/
-│   └── taskscli/
-├── shared/
-│   └── src/Common/                    # Shared NuGet package
+│   ├── common/
+│   │   └── src/                       # Shared NuGet package (Common.csproj)
+│   ├── observability/                 # Observability setup (stub)
+│   └── middleware/                    # Future middleware extraction (stub)
+├── deployment/                        # Orchestration & containerization
+│   ├── helm/
+│   ├── k8s/
+│   └── docker/
+├── infrastructure/                    # Cloud resources & IaC (stubs)
+│   ├── aks/
+│   ├── acr/
+│   ├── networking/
+│   └── terraform/
 ├── packages/                          # Local NuGet feed
 ├── nuget.config                       # NuGet configuration pointing to local packages
 ├── docker-compose.yml                 # Root compose for all services
 └── build.sh                           # Build script for Common package
 ```
+
+## Architectural Layers
+
+### Product Layer (`product/`)
+Business domain services independent of platform concerns:
+- **tasks** — Task management service
+- **users** — User management service
+- **notifications** — Notification service
+- **taskscli** — CLI client for interacting with product services
+
+Each service is a self-contained, independently deployable unit.
+
+### Platform Layer (`platform/`)
+Shared infrastructure and edge routing:
+- **gateway** — API Gateway (YARP) for routing and edge concerns
+- **common** — Shared libraries (middleware, utilities, response models)
+- **observability** — Telemetry and monitoring setup
+- **middleware** — Extraction point for shared middleware patterns
+
+### Deployment Layer (`deployment/`)
+Orchestration and containerization configuration:
+- **helm/** — Helm charts for Kubernetes deployment
+- **k8s/** — Raw Kubernetes manifests
+- **docker/** — Docker-specific configuration
+
+### Infrastructure Layer (`infrastructure/`)
+Cloud resources and infrastructure-as-code (stubs for future setup):
+- **aks/** — Azure Kubernetes Service configuration
+- **acr/** — Azure Container Registry configuration
+- **networking/** — Network infrastructure (VNets, NSGs, etc.)
+- **terraform/** — Terraform modules for cloud resources
 
 ## Docker & Containerization
 
@@ -44,7 +91,7 @@ Each service has:
 
 Build a single service:
 ```bash
-docker-compose -f services/gateway/docker-compose.yml build
+docker-compose -f product/tasks/docker-compose.yml build
 ```
 
 Build all services from root:
@@ -119,7 +166,8 @@ All build operations are available via bash scripts in the `scripts/` directory:
 
 # Build
 ./scripts/build.sh                     # Build entire solution + Common package
-./scripts/build-service.sh gateway     # Build specific service
+./scripts/build-service.sh gateway     # Build specific service (layer-aware)
+./scripts/build-service.sh tasks       # Automatically finds service in product/tasks/
 
 # Test
 ./scripts/test.sh                      # Run all tests
@@ -142,7 +190,7 @@ dotnet build
 
 Test a specific service:
 ```bash
-dotnet test services/[service-name]/tests/
+dotnet test product/tasks/tests/
 ```
 
 Run with Docker Compose:
@@ -162,7 +210,7 @@ Gateway routes to other services via internal Docker network addresses (e.g., `h
 
 ### Services are Independent
 Each service:
-- Lives in its own directory under `services/[name]`
+- Lives in its own directory under `product/[name]` or `platform/[name]`
 - Is a completely independent project
 - References the Common library as a NuGet package (not project reference)
 - Can be deployed independently
@@ -173,7 +221,7 @@ This design allows services to:
 - Use different versions of shared infrastructure (when needed)
 
 ### Common Library
-- Located in `shared/src/Common`
+- Located in `platform/common/src`
 - Provides:
   - Exception handling middleware
   - Structured logging middleware
@@ -188,3 +236,11 @@ All projects have `<Nullable>enable</Nullable>` - ensure proper null handling.
 
 ### Implicit Usings
 All projects have `<ImplicitUsings>enable</ImplicitUsings>` - common namespaces are automatically included.
+
+## Directory Flattening
+
+Source files are organized with minimal nesting:
+- Services: `product/[service]/src/` (not `product/[service]/src/[ProjectName]/`)
+- Platform: `platform/[component]/src/` (not `platform/[component]/src/[ProjectName]/`)
+
+This reduces path depth while maintaining clear organizational boundaries.
