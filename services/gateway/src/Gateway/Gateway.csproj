@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>DotnetAksMicroservices.Gateway</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Your Organization</Authors>
+    <Description>API Gateway service for microservices routing</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Yarp.ReverseProxy" Version="2.2.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.1.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="2.2.0" />
+    <PackageReference Include="DotnetAksMicroservices.Common" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>

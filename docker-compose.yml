@@ -1,32 +1,40 @@
 services:
   gateway:
     build:
-      context: ./src/Gateway
-      dockerfile: Dockerfile.Gateway
+      context: ./
+      dockerfile: services/gateway/Dockerfile.Gateway
     ports:
       - "5000:8080"
     depends_on:
       - users
       - tasks
       - notifications
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
 
   users:
     build:
-      context: ./src/Users
-      dockerfile: Dockerfile.Users
+      context: ./
+      dockerfile: services/users/Dockerfile.Users
     ports:
       - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
 
   tasks:
     build:
-      context: ./src/Tasks
-      dockerfile: Dockerfile.Tasks
+      context: ./
+      dockerfile: services/tasks/Dockerfile.Tasks
     ports:
       - "5002:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
 
   notifications:
     build:
-      context: ./src/Notifications
-      dockerfile: Dockerfile.Notifications
+      context: ./
+      dockerfile: services/notifications/Dockerfile.Notifications
     ports:
       - "5003:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
