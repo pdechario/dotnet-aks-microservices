@@ -1,0 +1,85 @@
+name: Build and Publish Packages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'platform/common/**'
+      - 'product/tasks/**'
+      - 'product/users/**'
+      - 'product/notifications/**'
+      - 'product/taskscli/**'
+      - 'platform/gateway/**'
+      - '.github/workflows/publish-packages.yml'
+  workflow_dispatch:
+
+env:
+  REGISTRY: nuget.pkg.github.com
+  REGISTRY_USERNAME: ${{ github.actor }}
+  REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build Common package
+        run: dotnet build platform/common/src/Common.csproj -c Release
+
+      - name: Build service packages
+        run: |
+          dotnet build product/tasks/src/Tasks.csproj -c Release
+          dotnet build product/users/src/Users.csproj -c Release
+          dotnet build product/notifications/src/Notifications.csproj -c Release
+          dotnet build platform/gateway/src/Gateway.csproj -c Release
+          dotnet build product/taskscli/src/TasksCli.csproj -c Release
+
+      - name: Pack packages
+        run: |
+          mkdir -p packages
+          dotnet pack platform/common/src/Common.csproj -c Release -o packages --no-build
+          dotnet pack product/tasks/src/Tasks.csproj -c Release -o packages --no-build
+          dotnet pack product/users/src/Users.csproj -c Release -o packages --no-build
+          dotnet pack product/notifications/src/Notifications.csproj -c Release -o packages --no-build
+          dotnet pack platform/gateway/src/Gateway.csproj -c Release -o packages --no-build
+          dotnet pack product/taskscli/src/TasksCli.csproj -c Release -o packages --no-build
+
+      - name: Configure NuGet for GitHub Packages
+        run: |
+          dotnet nuget add source \
+            --username ${{ env.REGISTRY_USERNAME }} \
+            --password ${{ env.REGISTRY_PASSWORD }} \
+            --store-password-in-clear-text \
+            --name github \
+            "https://${{ env.REGISTRY }}/${{ github.repository_owner }}/index.json" || true
+
+      - name: Publish packages to GitHub Packages
+        run: |
+          for pkg in packages/*.nupkg; do
+            dotnet nuget push "$pkg" \
+              --source "https://${{ env.REGISTRY }}/${{ github.repository_owner }}/index.json" \
+              --api-key ${{ env.REGISTRY_PASSWORD }} \
+              --skip-duplicate
+          done
+
+      - name: Upload packages as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: packages/*.nupkg
+          retention-days: 30

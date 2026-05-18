@@ -56,7 +56,7 @@ public class TasksApiClient
 
             if (response.IsSuccessStatusCode)
             {
-                var createdTask = await response.Content.ReadAsAsync<TaskOrder>();
+                var createdTask = await response.Content.ReadFromJsonAsync<TaskOrder>();
                 return createdTask;
             }
 
@@ -78,7 +78,7 @@ public class TasksApiClient
 
             if (response.IsSuccessStatusCode)
             {
-                var completedTask = await response.Content.ReadAsAsync<TaskOrder>();
+                var completedTask = await response.Content.ReadFromJsonAsync<TaskOrder>();
                 return completedTask;
             }
 

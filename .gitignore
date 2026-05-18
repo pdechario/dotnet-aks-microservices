@@ -39,6 +39,9 @@ ScaffoldingReadMe.txt
 # dotenv environment variables file
 .env
 
+# NuGet config with credentials
+nuget.config
+
 # Others
 ~$*
 *~
