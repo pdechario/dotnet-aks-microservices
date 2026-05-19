@@ -1,3 +1,4 @@
+using Common.Extensions;
 using Common.Middleware;
 using Serilog;
 
@@ -31,8 +32,7 @@ var notifications = new List<Notification>
 };
 
 var group = app.MapGroup("/v{version:apiVersion}/notifications")
-    .WithName("Notifications")
-    .WithOpenApi();
+    .WithName("Notifications");
 
 group.MapGet("/", () => Results.Ok(notifications))
     .WithName("GetAllNotifications")

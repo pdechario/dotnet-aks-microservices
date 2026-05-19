@@ -1,3 +1,4 @@
+using Common.Extensions;
 using Common.Middleware;
 using Serilog;
 
@@ -31,8 +32,7 @@ var users = new List<User>
 };
 
 var group = app.MapGroup("/v{version:apiVersion}/users")
-    .WithName("Users")
-    .WithOpenApi();
+    .WithName("Users");
 
 group.MapGet("/", () => Results.Ok(users))
     .WithName("GetAllUsers")

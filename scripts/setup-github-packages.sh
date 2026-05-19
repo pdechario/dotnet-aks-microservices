@@ -21,28 +21,16 @@ if [ -z "$GITHUB_USERNAME" ]; then
   exit 1
 fi
 
-# Update nuget.config
 cd "$ROOT_DIR"
 
-cat > nuget.config <<EOF
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <packageSources>
-    <add key="github" value="https://nuget.pkg.github.com/${GITHUB_USERNAME}/index.json" protocolVersion="3" />
-    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
-  </packageSources>
-  <packageSourceCredentials>
-    <github>
-      <add key="Username" value="${GITHUB_USERNAME}" />
-      <add key="ClearTextPassword" value="${GITHUB_TOKEN}" />
-    </github>
-  </packageSourceCredentials>
-</configuration>
-EOF
+sed -e "s/GITHUB_USERNAME_PLACEHOLDER/${GITHUB_USERNAME}/g" \
+    -e "s/GITHUB_TOKEN_PLACEHOLDER/${GITHUB_TOKEN}/g" \
+    nuget.template.config > nuget.config
 
 echo "✅ GitHub Packages configured!"
 echo "   Username: $GITHUB_USERNAME"
 echo "   GitHub Packages Feed: https://nuget.pkg.github.com/${GITHUB_USERNAME}/index.json"
 echo ""
-echo "📝 Your nuget.config has been updated with your GitHub credentials."
-echo "   (This file contains your token - keep it secure!)"
+echo "📝 For Docker builds, export your token:"
+echo "   export NUGET_TOKEN=\$(gh auth token)"
+echo "   docker-compose up --build"

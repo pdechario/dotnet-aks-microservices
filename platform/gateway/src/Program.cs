@@ -1,3 +1,4 @@
+using Common.Extensions;
 using Common.Middleware;
 using Serilog;
 

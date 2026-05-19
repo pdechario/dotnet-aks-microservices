@@ -32,10 +32,10 @@
 │   ├── acr/
 │   ├── networking/
 │   └── terraform/
-├── packages/                          # Local NuGet feed
-├── nuget.config                       # NuGet configuration pointing to local packages
+├── nuget.template.config              # NuGet config template (safe to commit, no secrets)
+├── nuget.config                       # Generated NuGet config (gitignored, has credentials)
 ├── docker-compose.yml                 # Root compose for all services
-└── build.sh                           # Build script for Common package
+└── build.sh                           # Build and publish script
 ```
 
 ## Architectural Layers
@@ -86,24 +86,26 @@ This naming convention makes it clear which Dockerfile corresponds to which serv
 ### Building Services
 
 Each service has:
-- Individual `docker-compose.yml` for isolated testing
-- `Dockerfile.[ProjectName]` at the service root
+- `Dockerfile.[ProjectName]` at the service root (expects pre-built artifacts in `bin/Release/net8.0/publish/`)
+- Published artifacts are prepared by build script
 
-Build a single service:
+Publish all services for Docker (includes `dotnet build` + `dotnet publish`):
 ```bash
-docker-compose -f product/tasks/docker-compose.yml build
+./scripts/build.sh
 ```
 
-Build all services from root:
+Build all Docker images from root:
 ```bash
 docker-compose build
 ```
+
+Services are containerized from pre-published artifacts — the workflow publishes in CI, developers publish locally before docker-compose.
 
 ## NuGet Package Management
 
 ### Packages
 
-All projects are packaged as NuGet packages and can be published to a feed:
+All projects are packaged as NuGet packages and published to GitHub Packages:
 
 - **DotnetAksMicroservices.Common** - Shared utilities and middleware
 - **DotnetAksMicroservices.Gateway** - Gateway service
@@ -112,25 +114,47 @@ All projects are packaged as NuGet packages and can be published to a feed:
 - **DotnetAksMicroservices.Notifications** - Notifications service
 - **DotnetAksMicroservices.TasksCli** - CLI tool for Tasks service
 
-### Building Packages
+### Local Development
 
-Run the build script to pack all projects:
+Services use **ProjectReference** to Common.csproj, so `dotnet build` works without any bootstrap:
+
 ```bash
-./scripts/build.sh
+./scripts/build.sh                # Restore, build, and publish for Docker
+dotnet build                      # Build solution with ProjectReference to Common
 ```
 
-This builds and packs all projects to `./packages/` where they can be consumed locally via `nuget.config`.
+### CI/GitHub Actions
 
-### Local NuGet Feed
+The `.github/workflows/publish-packages.yml` workflow:
+1. Publishes Common to GitHub Packages first
+2. Uses a **build matrix** to publish all services in parallel
+3. Services use **PackageReference** to Common (enabled by `GITHUB_ACTIONS=true` env var)
 
-The `nuget.config` file configures:
-- `./packages/` as the local NuGet feed (checked first)
-- `nuget.org` as fallback for external packages
+Each service .csproj has conditional references:
+```xml
+<ItemGroup Condition="'$(GITHUB_ACTIONS)' != 'true'">
+  <ProjectReference Include="../../../platform/common/src/Common.csproj" />
+</ItemGroup>
 
-When updating any package:
-1. Make changes to the project
-2. Run `./scripts/build.sh` to pack and update the local feed
-3. Run `dotnet restore` to get the new version
+<ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+  <PackageReference Include="DotnetAksMicroservices.Common" Version="1.0.0" />
+</ItemGroup>
+```
+
+### NuGet Configuration
+
+**nuget.template.config** — Committed to repo, contains placeholder for credentials:
+```xml
+<add key="Username" value="GITHUB_USERNAME_PLACEHOLDER" />
+<add key="ClearTextPassword" value="GITHUB_TOKEN_PLACEHOLDER" />
+```
+
+**nuget.config** — Generated locally by setup script, gitignored (contains your token):
+```bash
+./scripts/setup-github-packages.sh
+```
+
+This generates nuget.config with your actual GitHub token for local development.
 
 ## API Standards
 
@@ -162,23 +186,24 @@ All services follow these standards:
 All build operations are available via bash scripts in the `scripts/` directory:
 
 ```bash
-./scripts/help.sh                      # Show all available commands
+./scripts/help.sh                         # Show all available commands
 
-# Build
-./scripts/build.sh                     # Build entire solution + Common package
-./scripts/build-service.sh gateway     # Build specific service (layer-aware)
-./scripts/build-service.sh tasks       # Automatically finds service in product/tasks/
+# Build & Publish
+./scripts/build.sh                        # Build & publish all services for Docker
+./scripts/setup-github-packages.sh        # Generate nuget.config from template
+./scripts/build-service.sh gateway        # Build specific service (layer-aware)
+./scripts/build-service.sh tasks          # Automatically finds service in product/tasks/
 
 # Test
-./scripts/test.sh                      # Run all tests
-./scripts/test.sh gateway              # Test specific service
+./scripts/test.sh                         # Run all tests
+./scripts/test.sh gateway                 # Test specific service
 
 # Run
-./scripts/run.sh                       # Start all services with Docker Compose
+./scripts/run.sh                          # Start all services with Docker Compose
 
 # Utility
-./scripts/restore.sh                   # Restore NuGet packages
-./scripts/clean.sh                     # Clean build artifacts
+./scripts/restore.sh                      # Restore NuGet packages
+./scripts/clean.sh                        # Clean build artifacts
 ```
 
 ### Manual Commands (if not using scripts)
@@ -212,22 +237,25 @@ Gateway routes to other services via internal Docker network addresses (e.g., `h
 Each service:
 - Lives in its own directory under `product/[name]` or `platform/[name]`
 - Is a completely independent project
-- References the Common library as a NuGet package (not project reference)
+- Uses **ProjectReference** locally (for instant builds without NuGet bootstrap)
+- Uses **PackageReference** in CI (after Common is published to GitHub Packages)
 - Can be deployed independently
 
 This design allows services to:
-- Be developed and tested in isolation
+- Be developed and tested in isolation with fast local builds
+- Be built in CI using the published NuGet packages
 - Be deployed to different servers/containers
 - Use different versions of shared infrastructure (when needed)
 
 ### Common Library
 - Located in `platform/common/src`
 - Provides:
-  - Exception handling middleware
-  - Structured logging middleware
-  - API response models
-  - Service collection extensions
-- Updated via `build.sh` script, then version bump in `.csproj` files
+  - Exception handling middleware (ExceptionHandlingMiddleware)
+  - Structured logging middleware (StructuredLoggingMiddleware)
+  - Service collection extensions (AddCommonServices)
+  - Application builder extensions (UseExceptionHandling, UseStructuredLogging)
+- Published to GitHub Packages by CI workflow
+- Local references use ProjectReference for rapid development
 
 ## Code Quality
 

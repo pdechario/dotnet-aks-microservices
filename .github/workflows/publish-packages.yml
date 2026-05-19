@@ -15,71 +15,92 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY: nuget.pkg.github.com
-  REGISTRY_USERNAME: ${{ github.actor }}
-  REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+  DOTNET_VERSION: '8.0.x'
+  REGISTRY: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
 
 jobs:
-  build-and-publish:
+  publish-common:
     runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: read
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Restore Common
+        run: dotnet restore platform/common/src/Common.csproj
 
-      - name: Build Common package
-        run: dotnet build platform/common/src/Common.csproj -c Release
+      - name: Build Common
+        run: dotnet build platform/common/src/Common.csproj -c Release --no-restore
 
-      - name: Build service packages
+      - name: Pack Common
+        run: dotnet pack platform/common/src/Common.csproj -c Release --no-build -o ./dist
+
+      - name: Publish Common to GitHub Packages
         run: |
-          dotnet build product/tasks/src/Tasks.csproj -c Release
-          dotnet build product/users/src/Users.csproj -c Release
-          dotnet build product/notifications/src/Notifications.csproj -c Release
-          dotnet build platform/gateway/src/Gateway.csproj -c Release
-          dotnet build product/taskscli/src/TasksCli.csproj -c Release
+          dotnet nuget push ./dist/*.nupkg \
+            --source "${{ env.REGISTRY }}" \
+            --api-key ${{ secrets.GITHUB_TOKEN }} \
+            --skip-duplicate
 
-      - name: Pack packages
-        run: |
-          mkdir -p packages
-          dotnet pack platform/common/src/Common.csproj -c Release -o packages --no-build
-          dotnet pack product/tasks/src/Tasks.csproj -c Release -o packages --no-build
-          dotnet pack product/users/src/Users.csproj -c Release -o packages --no-build
-          dotnet pack product/notifications/src/Notifications.csproj -c Release -o packages --no-build
-          dotnet pack platform/gateway/src/Gateway.csproj -c Release -o packages --no-build
-          dotnet pack product/taskscli/src/TasksCli.csproj -c Release -o packages --no-build
+  publish-services:
+    needs: publish-common
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    strategy:
+      matrix:
+        service:
+          - { name: tasks,         path: product/tasks/src/Tasks.csproj,                 dll: Tasks }
+          - { name: users,         path: product/users/src/Users.csproj,                 dll: Users }
+          - { name: notifications, path: product/notifications/src/Notifications.csproj, dll: Notifications }
+          - { name: gateway,       path: platform/gateway/src/Gateway.csproj,            dll: Gateway }
+          - { name: taskscli,      path: product/taskscli/src/TasksCli.csproj,           dll: TasksCli }
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Configure NuGet for GitHub Packages
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Add GitHub Packages source
         run: |
-          dotnet nuget add source \
-            --username ${{ env.REGISTRY_USERNAME }} \
-            --password ${{ env.REGISTRY_PASSWORD }} \
-            --store-password-in-clear-text \
+          dotnet nuget add source "${{ env.REGISTRY }}" \
             --name github \
-            "https://${{ env.REGISTRY }}/${{ github.repository_owner }}/index.json" || true
+            --username ${{ github.actor }} \
+            --password ${{ secrets.GITHUB_TOKEN }} \
+            --store-password-in-clear-text || true
 
-      - name: Publish packages to GitHub Packages
+      - name: Restore ${{ matrix.service.name }}
+        run: dotnet restore ${{ matrix.service.path }}
+        env:
+          GITHUB_ACTIONS: "true"
+
+      - name: Build ${{ matrix.service.name }}
+        run: dotnet build ${{ matrix.service.path }} -c Release --no-restore
+        env:
+          GITHUB_ACTIONS: "true"
+
+      - name: Pack ${{ matrix.service.name }}
+        run: dotnet pack ${{ matrix.service.path }} -c Release --no-build -o ./dist
+        env:
+          GITHUB_ACTIONS: "true"
+
+      - name: Publish ${{ matrix.service.name }} to GitHub Packages
         run: |
-          for pkg in packages/*.nupkg; do
-            dotnet nuget push "$pkg" \
-              --source "https://${{ env.REGISTRY }}/${{ github.repository_owner }}/index.json" \
-              --api-key ${{ env.REGISTRY_PASSWORD }} \
-              --skip-duplicate
-          done
+          dotnet nuget push ./dist/*.nupkg \
+            --source "${{ env.REGISTRY }}" \
+            --api-key ${{ secrets.GITHUB_TOKEN }} \
+            --skip-duplicate
 
-      - name: Upload packages as artifact
+      - name: Upload ${{ matrix.service.name }} package artifact
         uses: actions/upload-artifact@v4
         with:
-          name: nuget-packages
-          path: packages/*.nupkg
+          name: nuget-${{ matrix.service.name }}
+          path: ./dist/*.nupkg
           retention-days: 30

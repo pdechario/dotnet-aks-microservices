@@ -1,3 +1,4 @@
+using Common.Extensions;
 using Common.Middleware;
 using Serilog;
 
@@ -31,8 +32,7 @@ var tasks = new List<TaskOrder>
 };
 
 var group = app.MapGroup("/v{version:apiVersion}/tasks")
-    .WithName("Tasks")
-    .WithOpenApi();
+    .WithName("Tasks");
 
 group.MapGet("/", () => Results.Ok(tasks))
     .WithName("GetAllTasks")

@@ -7,18 +7,19 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
 cd "$ROOT_DIR"
 
-echo "📦 Building Common and creating local package..."
-mkdir -p packages
-dotnet build platform/common/src/Common.csproj -c Release
-dotnet pack platform/common/src/Common.csproj -c Release -o packages --no-build
-
 echo "🔄 Restoring packages..."
 dotnet restore
 
 echo "🔨 Building entire solution..."
 dotnet build --configuration Release
 
+echo "📦 Publishing services for Docker..."
+dotnet publish product/tasks/src/Tasks.csproj -c Release
+dotnet publish product/users/src/Users.csproj -c Release
+dotnet publish product/notifications/src/Notifications.csproj -c Release
+dotnet publish platform/gateway/src/Gateway.csproj -c Release
+
 echo "✅ Build complete"
 echo ""
-echo "📦 Local packages available in ./packages/"
-echo "   When you push to main, GitHub Actions will automatically publish to GitHub Packages."
+echo "To run services with Docker: docker-compose up --build"
+echo "To run tests:                ./scripts/test.sh"
