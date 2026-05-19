@@ -87,13 +87,13 @@ jobs:
           GITHUB_ACTIONS: "true"
 
       - name: Pack ${{ matrix.service.name }}
-        run: dotnet pack ${{ matrix.service.path }} -c Release --no-build -o ./dist
+        run: dotnet pack ${{ matrix.service.path }} -c Release --no-build -o ./dist-${{ matrix.service.name }}
         env:
           GITHUB_ACTIONS: "true"
 
       - name: Publish ${{ matrix.service.name }} to GitHub Packages
         run: |
-          dotnet nuget push ./dist/*.nupkg \
+          dotnet nuget push ./dist-${{ matrix.service.name }}/*.nupkg \
             --source "${{ env.REGISTRY }}" \
             --api-key ${{ secrets.GITHUB_TOKEN }} \
             --skip-duplicate
@@ -102,5 +102,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nuget-${{ matrix.service.name }}
-          path: ./dist/*.nupkg
+          path: ./dist-${{ matrix.service.name }}/*.nupkg
           retention-days: 30
