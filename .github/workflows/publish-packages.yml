@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'platform/common/**'
+      - 'platform/observability/**'
       - 'product/tasks/**'
       - 'product/users/**'
       - 'product/notifications/**'
@@ -41,6 +42,34 @@ jobs:
         run: dotnet pack platform/common/src/Common.csproj -c Release --no-build -o ./dist
 
       - name: Publish Common to GitHub Packages
+        run: |
+          dotnet nuget push ./dist/*.nupkg \
+            --source "${{ env.REGISTRY }}" \
+            --api-key ${{ secrets.GITHUB_TOKEN }} \
+            --skip-duplicate
+
+  publish-observability:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore Observability
+        run: dotnet restore platform/observability/src/Observability.csproj
+
+      - name: Build Observability
+        run: dotnet build platform/observability/src/Observability.csproj -c Release --no-restore
+
+      - name: Pack Observability
+        run: dotnet pack platform/observability/src/Observability.csproj -c Release --no-build -o ./dist
+
+      - name: Publish Observability to GitHub Packages
         run: |
           dotnet nuget push ./dist/*.nupkg \
             --source "${{ env.REGISTRY }}" \
