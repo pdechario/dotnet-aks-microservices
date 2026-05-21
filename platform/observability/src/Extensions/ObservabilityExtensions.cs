@@ -1,7 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Observability.Options;
-using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace Observability.Extensions;
 
@@ -17,6 +18,8 @@ public static class ObservabilityExtensions
                 "Ensure 'Otel:ServiceName' and 'Otel:Endpoint' are set.");
 
         services.AddOpenTelemetry()
+            .ConfigureResource(resource => resource
+                .AddService(options.ServiceName))
             .WithMetrics(metrics => metrics
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
@@ -25,7 +28,6 @@ public static class ObservabilityExtensions
                     otlp.Endpoint = new Uri(options.Endpoint);
                 }))
             .WithTracing(tracing => tracing
-                .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddOtlpExporter(otlp =>
                 {
@@ -35,9 +37,7 @@ public static class ObservabilityExtensions
                 .AddOtlpExporter(otlp =>
                 {
                     otlp.Endpoint = new Uri(options.Endpoint);
-                }))
-            .ConfigureResource(resource => resource
-                .AddService(options.ServiceName));
+                }));
         return services;
     }
 }
