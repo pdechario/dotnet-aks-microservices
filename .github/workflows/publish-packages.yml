@@ -33,13 +33,13 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore Common
-        run: dotnet restore platform/common/src/Common.csproj
+        run: dotnet restore platform/common/Common.csproj
 
       - name: Build Common
-        run: dotnet build platform/common/src/Common.csproj -c Release --no-restore
+        run: dotnet build platform/common/Common.csproj -c Release --no-restore
 
       - name: Pack Common
-        run: dotnet pack platform/common/src/Common.csproj -c Release --no-build -o ./dist
+        run: dotnet pack platform/common/Common.csproj -c Release --no-build -o ./dist
 
       - name: Publish Common to GitHub Packages
         run: |
@@ -61,13 +61,13 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore Observability
-        run: dotnet restore platform/observability/src/Observability.csproj
+        run: dotnet restore platform/observability/Observability.csproj
 
       - name: Build Observability
-        run: dotnet build platform/observability/src/Observability.csproj -c Release --no-restore
+        run: dotnet build platform/observability/Observability.csproj -c Release --no-restore
 
       - name: Pack Observability
-        run: dotnet pack platform/observability/src/Observability.csproj -c Release --no-build -o ./dist
+        run: dotnet pack platform/observability/Observability.csproj -c Release --no-build -o ./dist
 
       - name: Publish Observability to GitHub Packages
         run: |
@@ -85,11 +85,11 @@ jobs:
     strategy:
       matrix:
         service:
-          - { name: tasks,         path: product/tasks/src/Tasks.csproj,                 dll: Tasks }
-          - { name: users,         path: product/users/src/Users.csproj,                 dll: Users }
-          - { name: notifications, path: product/notifications/src/Notifications.csproj, dll: Notifications }
-          - { name: gateway,       path: platform/gateway/src/Gateway.csproj,            dll: Gateway }
-          - { name: taskscli,      path: product/taskscli/src/TasksCli.csproj,           dll: TasksCli }
+          - { name: tasks,         path: product/tasks/Tasks.csproj,                 dll: Tasks }
+          - { name: users,         path: product/users/Users.csproj,                 dll: Users }
+          - { name: notifications, path: product/notifications/Notifications.csproj, dll: Notifications }
+          - { name: gateway,       path: platform/gateway/Gateway.csproj,            dll: Gateway }
+          - { name: taskscli,      path: product/taskscli/TasksCli.csproj,           dll: TasksCli }
     steps:
       - uses: actions/checkout@v4
 

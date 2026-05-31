@@ -6,7 +6,9 @@
 .
 ├── product/                           # Business domain services
 │   ├── tasks/
-│   │   ├── src/                       # Source code (Tasks.csproj, Program.cs, etc.)
+│   │   ├── Tasks.csproj               # Project file
+│   │   ├── Program.cs                 # Entry point
+│   │   ├── src/                       # Source code files
 │   │   ├── tests/                     # Tests
 │   │   ├── docker-compose.yml         # Service-specific compose
 │   │   └── Dockerfile.Tasks           # Service Dockerfile
@@ -15,12 +17,15 @@
 │   └── taskscli/                      # Product client CLI tool
 ├── platform/                          # Shared infrastructure & edge
 │   ├── gateway/
-│   │   ├── src/                       # Source code (Gateway.csproj, Program.cs, etc.)
+│   │   ├── Gateway.csproj             # Project file
+│   │   ├── Program.cs                 # Entry point
+│   │   ├── src/                       # Source code files
 │   │   ├── tests/                     # Tests
 │   │   ├── docker-compose.yml         # Service-specific compose
 │   │   └── Dockerfile.Gateway         # Service Dockerfile
 │   ├── common/
-│   │   └── src/                       # Shared NuGet package (Common.csproj)
+│   │   ├── Common.csproj              # Project file
+│   │   └── src/                       # Source code files
 │   ├── observability/                 # Observability setup (stub)
 │   └── middleware/                    # Future middleware extraction (stub)
 ├── deployment/                        # Orchestration & containerization
@@ -133,11 +138,18 @@ The `.github/workflows/publish-packages.yml` workflow:
 Each service .csproj has conditional references:
 ```xml
 <ItemGroup Condition="'$(GITHUB_ACTIONS)' != 'true'">
-  <ProjectReference Include="../../../platform/common/src/Common.csproj" />
+  <ProjectReference Include="../../platform/common/Common.csproj" />
 </ItemGroup>
 
 <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
   <PackageReference Include="DotnetAksMicroservices.Common" Version="1.0.0" />
+</ItemGroup>
+```
+
+For platform services, the path is shorter:
+```xml
+<ItemGroup Condition="'$(GITHUB_ACTIONS)' != 'true'">
+  <ProjectReference Include="../common/Common.csproj" />
 </ItemGroup>
 ```
 
@@ -265,10 +277,12 @@ All projects have `<Nullable>enable</Nullable>` - ensure proper null handling.
 ### Implicit Usings
 All projects have `<ImplicitUsings>enable</ImplicitUsings>` - common namespaces are automatically included.
 
-## Directory Flattening
+## Directory Structure
 
-Source files are organized with minimal nesting:
-- Services: `product/[service]/src/` (not `product/[service]/src/[ProjectName]/`)
-- Platform: `platform/[component]/src/` (not `platform/[component]/src/[ProjectName]/`)
+Services have a flat structure to minimize nesting:
+- `.csproj` file at service root (e.g., `product/tasks/Tasks.csproj`)
+- `Program.cs` at service root (for entry points)
+- Source code files in `src/` subdirectory
+- `bin/` and `obj/` generated at build time
 
-This reduces path depth while maintaining clear organizational boundaries.
+This reduces path depth while keeping generated files separate from source.

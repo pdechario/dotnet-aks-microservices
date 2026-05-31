@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(GITHUB_ACTIONS)' != 'true'">
-    <ProjectReference Include="../../../platform/common/src/Common.csproj" />
+    <ProjectReference Include="../../platform/common/Common.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">

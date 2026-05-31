@@ -14,10 +14,10 @@ echo "🔨 Building entire solution..."
 dotnet build --configuration Release
 
 echo "📦 Publishing services for Docker..."
-dotnet publish product/tasks/src/Tasks.csproj -c Release
-dotnet publish product/users/src/Users.csproj -c Release
-dotnet publish product/notifications/src/Notifications.csproj -c Release
-dotnet publish platform/gateway/src/Gateway.csproj -c Release
+dotnet publish product/tasks/Tasks.csproj -c Release
+dotnet publish product/users/Users.csproj -c Release
+dotnet publish product/notifications/Notifications.csproj -c Release
+dotnet publish platform/gateway/Gateway.csproj -c Release
 
 echo "✅ Build complete"
 echo ""

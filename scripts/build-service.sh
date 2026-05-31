@@ -30,6 +30,6 @@ if [ ! -d "$ROOT_DIR/$LAYER/$SERVICE" ]; then
 fi
 
 echo "🔨 Building $SERVICE service..."
-dotnet build "$ROOT_DIR/$LAYER/$SERVICE/src/$PASCAL.csproj"
+dotnet build "$ROOT_DIR/$LAYER/$SERVICE/$PASCAL.csproj"
 
 echo "✅ Build complete"
