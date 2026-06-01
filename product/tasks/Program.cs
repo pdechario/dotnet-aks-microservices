@@ -1,8 +1,14 @@
 using Common.Extensions;
 using Common.Middleware;
 using Serilog;
+using Platform.Observability;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddPlatformTracing(
+    builder.Configuration,
+    serviceName: "Product.Tasks"
+);
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration
