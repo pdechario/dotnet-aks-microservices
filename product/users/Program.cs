@@ -1,5 +1,6 @@
-using Common.Extensions;
-using Common.Middleware;
+using DotnetAksMicroservices.Platform.Common.Extensions;
+using DotnetAksMicroservices.Platform.Common.Middleware;
+using DotnetAksMicroservices.Product.Users;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,5 +56,3 @@ group.MapPost("/", (User user) =>
     .WithSummary("Create a new user");
 
 app.Run();
-
-record User(string Id, string Name, string Email);

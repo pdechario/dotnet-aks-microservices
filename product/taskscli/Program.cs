@@ -1,4 +1,4 @@
-using TasksCli;
+using DotnetAksMicroservices.Product.TasksCli;
 
 var client = new TasksApiClient();
 

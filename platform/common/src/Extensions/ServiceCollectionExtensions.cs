@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Common.Extensions;
+namespace DotnetAksMicroservices.Platform.Common.Extensions;
 
 public static class ServiceCollectionExtensions
 {

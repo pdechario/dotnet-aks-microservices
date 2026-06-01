@@ -3,7 +3,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <PackageId>DotnetAksMicroservices.Tasks</PackageId>
+    <PackageId>Product.Tasks</PackageId>
+    <AssemblyName>Product.Tasks</AssemblyName>
+    <RootNamespace>DotnetAksMicroservices.Product.Tasks</RootNamespace>
     <Version>1.0.0</Version>
     <Authors>Your Organization</Authors>
     <Description>Tasks service for managing tasks</Description>
@@ -23,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
-    <PackageReference Include="DotnetAksMicroservices.Common" Version="1.0.0" />
-    <PackageReference Include="DotnetAksMicroservices.Observability" Version="1.0.0" />
+    <PackageReference Include="Platform.Common" Version="1.0.0" />
+    <PackageReference Include="Platform.Observability" Version="1.0.0" />
   </ItemGroup>
 </Project>

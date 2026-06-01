@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 
-namespace TasksCli;
+namespace DotnetAksMicroservices.Product.TasksCli;
 
 public record TaskOrder(string Id, string Title, string Details, string AssignedUserId, string Status);
 

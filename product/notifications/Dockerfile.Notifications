@@ -2,5 +2,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
-COPY product/notifications/src/bin/Release/net8.0/publish .
-ENTRYPOINT ["dotnet", "Notifications.dll"]
+COPY product/notifications/bin/Release/net8.0/publish .
+ENTRYPOINT ["dotnet", "Product.Notifications.dll"]

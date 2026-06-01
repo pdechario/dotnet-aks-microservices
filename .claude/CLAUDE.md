@@ -260,7 +260,9 @@ This design allows services to:
 - Use different versions of shared infrastructure (when needed)
 
 ### Common Library
-- Located in `platform/common/src`
+- Located in `platform/common`
+- Namespace: `DotnetAksMicroservices.Platform.Common`
+- Assembly name: `Platform.Common`
 - Provides:
   - Exception handling middleware (ExceptionHandlingMiddleware)
   - Structured logging middleware (StructuredLoggingMiddleware)
@@ -268,6 +270,55 @@ This design allows services to:
   - Application builder extensions (UseExceptionHandling, UseStructuredLogging)
 - Published to GitHub Packages by CI workflow
 - Local references use ProjectReference for rapid development
+
+## Namespace and Assembly Conventions
+
+### Pattern
+
+Services follow a three-part naming pattern aligned across namespaces, assemblies, and packages:
+
+- **Namespace**: `DotnetAksMicroservices.[Layer].[Component][.SubFolder]`
+  - Example: `DotnetAksMicroservices.Platform.Common.Extensions`
+  - Example: `DotnetAksMicroservices.Product.Tasks`
+- **Assembly name** (set via `<AssemblyName>` in `.csproj`): `[Layer].[Component]`
+  - Example: `Platform.Common`
+  - Example: `Product.Tasks`
+- **PackageId** (NuGet identity): `[Layer].[Component]`
+  - Example: `Platform.Common`
+  - Example: `Product.Tasks`
+
+### Project-to-Convention Mapping
+
+| Project | Layer | Component | AssemblyName | Root Namespace | PackageId |
+|---|---|---|---|---|---|
+| Common | Platform | Common | `Platform.Common` | `DotnetAksMicroservices.Platform.Common` | `Platform.Common` |
+| Observability | Platform | Observability | `Platform.Observability` | `DotnetAksMicroservices.Platform.Observability` | `Platform.Observability` |
+| Gateway | Platform | Gateway | `Platform.Gateway` | `DotnetAksMicroservices.Platform.Gateway` | `Platform.Gateway` |
+| Tasks | Product | Tasks | `Product.Tasks` | `DotnetAksMicroservices.Product.Tasks` | `Product.Tasks` |
+| Users | Product | Users | `Product.Users` | `DotnetAksMicroservices.Product.Users` | `Product.Users` |
+| Notifications | Product | Notifications | `Product.Notifications` | `DotnetAksMicroservices.Product.Notifications` | `Product.Notifications` |
+| TasksCli | Product | TasksCli | `Product.TasksCli` | `DotnetAksMicroservices.Product.TasksCli` | `Product.TasksCli` |
+
+### Docker ENTRYPOINT Matching
+
+Dockerfiles reference the assembly name (from `<AssemblyName>`), not the project name:
+
+```dockerfile
+ENTRYPOINT ["dotnet", "Platform.Common.dll"]
+ENTRYPOINT ["dotnet", "Product.Tasks.dll"]
+```
+
+### Sub-namespaces
+
+Common library subdivides by folder for organizational clarity:
+
+- `DotnetAksMicroservices.Platform.Common.Extensions` → `src/Extensions/`
+- `DotnetAksMicroservices.Platform.Common.Middleware` → `src/Middleware/`
+
+Product services map domain models to their own namespace at the service root:
+
+- `DotnetAksMicroservices.Product.Tasks.TaskOrder` → `TaskOrder.cs` in service root
+- `DotnetAksMicroservices.Product.Users.User` → `User.cs` in service root
 
 ## Code Quality
 
@@ -282,7 +333,8 @@ All projects have `<ImplicitUsings>enable</ImplicitUsings>` - common namespaces 
 Services have a flat structure to minimize nesting:
 - `.csproj` file at service root (e.g., `product/tasks/Tasks.csproj`)
 - `Program.cs` at service root (for entry points)
-- Source code files in `src/` subdirectory
+- Model files at service root (e.g., `TaskOrder.cs`, `User.cs`)
+- Source code files in `src/` subdirectory when appropriate (e.g., `src/TasksApiClient.cs`)
 - `bin/` and `obj/` generated at build time
 
-This reduces path depth while keeping generated files separate from source.
+This reduces path depth and minimizes nesting.

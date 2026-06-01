@@ -1,5 +1,5 @@
-using Common.Extensions;
-using Common.Middleware;
+using DotnetAksMicroservices.Platform.Common.Extensions;
+using DotnetAksMicroservices.Platform.Common.Middleware;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

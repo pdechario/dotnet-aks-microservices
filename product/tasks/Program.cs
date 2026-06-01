@@ -1,7 +1,8 @@
-using Common.Extensions;
-using Common.Middleware;
+using DotnetAksMicroservices.Platform.Common.Extensions;
+using DotnetAksMicroservices.Platform.Common.Middleware;
+using DotnetAksMicroservices.Platform.Observability;
+using DotnetAksMicroservices.Product.Tasks;
 using Serilog;
-using Platform.Observability;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,5 +77,3 @@ group.MapPut("/{id}/complete", (string id) =>
     .WithSummary("Mark a task as complete");
 
 app.Run();
-
-record TaskOrder(string Id, string Title, string Details, string AssignedUserId, string Status);

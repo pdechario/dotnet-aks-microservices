@@ -6,11 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace Platform.Observability;
+namespace DotnetAksMicroservices.Platform.Observability;
 
 public static class OtelTracingExtensions
 {
-    public static readonly ActivitySource ActivitySource = new("Platform.Observability");
+    public static readonly ActivitySource ActivitySource = new("DotnetAksMicroservices.Platform.Observability");
 
     public static IServiceCollection AddPlatformTracing(
         this IServiceCollection services,

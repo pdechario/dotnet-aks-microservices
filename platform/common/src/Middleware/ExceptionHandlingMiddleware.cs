@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Middleware;
+namespace DotnetAksMicroservices.Platform.Common.Middleware;
 
 public class ExceptionHandlingMiddleware
 {

@@ -5,4 +5,4 @@ ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
 COPY product/tasks/bin/Release/net8.0/publish .
-ENTRYPOINT ["dotnet", "Tasks.dll"]
+ENTRYPOINT ["dotnet", "Product.Tasks.dll"]

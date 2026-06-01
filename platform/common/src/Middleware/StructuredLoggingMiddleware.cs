@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Serilog.Context;
 
-namespace Common.Middleware;
+namespace DotnetAksMicroservices.Platform.Common.Middleware;
 
 public class StructuredLoggingMiddleware
 {

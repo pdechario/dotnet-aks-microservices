@@ -4,7 +4,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <PackageId>DotnetAksMicroservices.Common</PackageId>
+    <PackageId>Platform.Common</PackageId>
+    <AssemblyName>Platform.Common</AssemblyName>
+    <RootNamespace>DotnetAksMicroservices.Platform.Common</RootNamespace>
     <Version>1.0.0</Version>
     <Authors>Your Organization</Authors>
     <Description>Common utilities and middleware for microservices</Description>

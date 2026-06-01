@@ -100,11 +100,11 @@ jobs:
     strategy:
       matrix:
         service:
-          - { name: tasks,         path: product/tasks/Tasks.csproj,                 dll: Tasks }
-          - { name: users,         path: product/users/Users.csproj,                 dll: Users }
-          - { name: notifications, path: product/notifications/Notifications.csproj, dll: Notifications }
-          - { name: gateway,       path: platform/gateway/Gateway.csproj,            dll: Gateway }
-          - { name: taskscli,      path: product/taskscli/TasksCli.csproj,           dll: TasksCli }
+          - { name: tasks,         path: product/tasks/Tasks.csproj,                 dll: Product.Tasks }
+          - { name: users,         path: product/users/Users.csproj,                 dll: Product.Users }
+          - { name: notifications, path: product/notifications/Notifications.csproj, dll: Product.Notifications }
+          - { name: gateway,       path: platform/gateway/Gateway.csproj,            dll: Platform.Gateway }
+          - { name: taskscli,      path: product/taskscli/TasksCli.csproj,           dll: Product.TasksCli }
     steps:
       - uses: actions/checkout@v4
 

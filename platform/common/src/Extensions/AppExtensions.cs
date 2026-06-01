@@ -1,7 +1,7 @@
-using Common.Middleware;
+using DotnetAksMicroservices.Platform.Common.Middleware;
 using Microsoft.AspNetCore.Builder;
 
-namespace Common.Extensions;
+namespace DotnetAksMicroservices.Platform.Common.Extensions;
 
 public static class AppExtensions
 {

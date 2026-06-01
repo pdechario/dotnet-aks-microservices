@@ -1,5 +1,6 @@
-using Common.Extensions;
-using Common.Middleware;
+using DotnetAksMicroservices.Platform.Common.Extensions;
+using DotnetAksMicroservices.Platform.Common.Middleware;
+using DotnetAksMicroservices.Product.Notifications;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,5 +48,3 @@ group.MapPost("/", (Notification notification) =>
     .WithSummary("Create a new notification");
 
 app.Run();
-
-record Notification(string Id, string UserId, string Message);
